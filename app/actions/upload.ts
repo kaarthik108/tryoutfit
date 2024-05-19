@@ -25,7 +25,7 @@ export async function upload(previousState: any, formData: FormData) {
     // Upload the image to S3 using Amplify
     const result = await uploadData({
       data: image,
-      path: `images/${imageId}`,
+      path: `tryout/img/${imageId}`,
     }).result;
 
     console.log("Image uploaded successfully:", result);
