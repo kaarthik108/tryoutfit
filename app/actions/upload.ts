@@ -5,7 +5,11 @@ import Replicate from "replicate";
 import { generateClient } from "aws-amplify/api";
 
 import { Schema } from "@/amplify/data/resource";
+import { Amplify } from "aws-amplify";
 import { getUrl, uploadData } from "aws-amplify/storage";
+import outputs from "../../amplify_outputs.json";
+
+Amplify.configure(outputs);
 
 export async function upload(previousState: any, formData: FormData) {
   const client = generateClient<Schema>({});
