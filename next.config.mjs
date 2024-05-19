@@ -8,6 +8,13 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname:
+          "amplify-tryoutfit-kaarthikand-tryoutbucketccc32003-bhgw6f11banb.s3.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

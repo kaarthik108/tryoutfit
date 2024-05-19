@@ -13,16 +13,10 @@ const sampleProduct = {
   featuredImage: {
     url: "https://example.com/sample-image.jpg",
   },
-  images: [
-    {
-      src: "/assets/t-shirt-circles-black.png",
-      altText: "Sample Image 1",
-    },
-    {
-      src: "/assets/bag-black.png",
-      altText: "Sample Image 2",
-    },
-  ],
+  images: {
+    src: "https://amplify-tryoutfit-kaarthikand-tryoutbucketccc32003-bhgw6f11banb.s3.amazonaws.com/img/t-shirt-circles-black.png",
+    altText: "t-shirt-circles-black",
+  },
   availableForSale: true,
   priceRange: {
     minVariantPrice: {
@@ -44,30 +38,8 @@ export default async function ProductPage({
   const product = sampleProduct; // Use the sample product for testing
 
   if (!product) return notFound();
-
-  const productJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.title,
-    description: product.description,
-    image: product.featuredImage.url,
-    offers: {
-      "@type": "AggregateOffer",
-      availability: product.availableForSale
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-      priceCurrency: product.priceRange.minVariantPrice.currencyCode,
-      highPrice: product.priceRange.maxVariantPrice.amount,
-      lowPrice: product.priceRange.minVariantPrice.amount,
-    },
-  };
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
-      />
       <div className="mx-auto max-w-screen-2xl px-4">
         <div className="rounded-lg border border-neutral-200 bg-white p-8 md:p-12 dark:border-neutral-800 dark:bg-black">
           <div className="mb-8">

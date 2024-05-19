@@ -1,15 +1,11 @@
 import Navbar from "@/components/Navbar";
-import { Amplify } from "aws-amplify";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ReactNode } from "react";
-import outputs from "../amplify_outputs.json";
+import ConfigureAmplifyClientSide from "./ConfigureAmplifyClientSide";
 import { ImageProvider } from "./ImageContext";
 import "./globals.css";
 import { ThemeProvider } from "./theme-provider";
-
-Amplify.configure(outputs);
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -30,6 +26,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <ConfigureAmplifyClientSide />
           <ImageProvider>
             <Navbar />
             <main>{children}</main>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useImageContext } from "@/app/ImageContext";
 import Link from "next/link";
 import { Suspense, useState } from "react";
 import { UploadSheet } from "./UploadModal";
@@ -7,11 +8,13 @@ import LogoSquare from "./logo-square";
 
 const { SITE_NAME } = process.env;
 const test_menu = [{ title: "Home", path: "/" }];
+
 type Menu = { title: string; path: string };
 
 export default function Navbar() {
   const menu = test_menu as Menu[];
   const [showUploadSheet, setShowUploadSheet] = useState(false);
+  const { selectedImage } = useImageContext();
 
   const handleOpenSheet = () => {
     setShowUploadSheet(true);
@@ -62,7 +65,11 @@ export default function Navbar() {
           </button>
         </div>
       </div>
-      <UploadSheet open={showUploadSheet} onClose={handleCloseSheet} />
+      <UploadSheet
+        open={showUploadSheet}
+        onClose={handleCloseSheet}
+        initialSelectedImage={selectedImage}
+      />
     </nav>
   );
 }

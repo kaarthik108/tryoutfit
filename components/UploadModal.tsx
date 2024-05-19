@@ -2,16 +2,12 @@
 
 import { useImageContext } from "@/app/ImageContext";
 import { upload } from "@/app/actions/upload";
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { UploadCloud, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -28,10 +24,12 @@ export function UploadSheet({
   onImageSelect,
   onClose,
   open,
+  initialSelectedImage,
 }: {
   onImageSelect?: (image: string) => void;
   onClose?: () => void;
   open?: boolean;
+  initialSelectedImage?: string | null;
 }) {
   const router = useRouter();
   const { selectedImage, setSelectedImage } = useImageContext();
@@ -43,6 +41,12 @@ export function UploadSheet({
       onImageSelect?.(selectedImage);
     }
   }, [selectedImage, onImageSelect]);
+
+  useEffect(() => {
+    if (initialSelectedImage) {
+      setUploadedImage(initialSelectedImage);
+    }
+  }, [initialSelectedImage]);
 
   const onChangePicture = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,10 +79,11 @@ export function UploadSheet({
       onClose?.();
 
       // Set the search params with the image ID
-      const searchParams = new URLSearchParams();
+      const searchParams = new URLSearchParams(window.location.search);
       searchParams.set("imageId", id);
-      // Navigate to the page with the search params
-      router.push(`/some-page?${searchParams.toString()}`);
+      // Update the URL with the search params
+      const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+      router.push(newUrl);
     }
   }, [state.status, state.data, setSelectedImage, onClose, router]);
 
