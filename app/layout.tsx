@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import Auth from "@/components/auth/Auth";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ReactNode } from "react";
@@ -27,10 +28,12 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ImageProvider>
-            <Navbar />
-            <main>{children}</main>
-          </ImageProvider>
+          <Auth>
+            <ImageProvider>
+              <Navbar />
+              <main>{children}</main>
+            </ImageProvider>
+          </Auth>
         </ThemeProvider>
       </body>
     </html>

@@ -1,33 +1,32 @@
 // product.tsx
+// import { getProduct } from "@/app/actions/upload";
+import { getProduct } from "@/app/actions/upload";
 import { Gallery } from "@/components/gallery";
-import type { Metadata } from "next";
-import Link from "next/link";
+import { cookieBasedClient } from "@/lib/amplify-utils";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 // Sample product record for testing
 const sampleProduct = {
-  id: "1",
-  title: "Sample Product",
-  description: "This is a sample product description.",
-  featuredImage: {
-    url: "https://example.com/sample-image.jpg",
-  },
-  images: {
-    src: "https://amplify-tryoutfit-kaarthikand-tryoutbucketccc32003-bhgw6f11banb.s3.amazonaws.com/img/t-shirt-circles-black.png",
-    altText: "t-shirt-circles-black",
-  },
-  availableForSale: true,
-  priceRange: {
-    minVariantPrice: {
-      currencyCode: "USD",
-      amount: "9.99",
-    },
-    maxVariantPrice: {
-      currencyCode: "USD",
-      amount: "19.99",
-    },
-  },
+  id: "t-shirt-circles-black",
+  title: "T-Shirt Circles Black",
+  description: "This is a t-shirt with circles on it.",
+  // featuredImage: {
+  //   url: "https://example.com/sample-image.jpg",
+  // },
+  src: "/t-shirt-circles-black.png",
+  altText: "t-shirt-circles-black",
+  // availableForSale: true,
+  // priceRange: {
+  //   minVariantPrice: {
+  //     currencyCode: "USD",
+  //     amount: "9.99",
+  //   },
+  //   maxVariantPrice: {
+  //     currencyCode: "USD",
+  //     amount: "19.99",
+  //   },
+  // },
 };
 
 export default async function ProductPage({
@@ -35,9 +34,10 @@ export default async function ProductPage({
 }: {
   params: { id: string };
 }) {
-  const product = sampleProduct; // Use the sample product for testing
+  const product = await getProduct(params.id);
+  console.log(product);
 
-  if (!product) return notFound();
+  if (!product || !product.src || !product.altText) return notFound();
   return (
     <>
       <div className="mx-auto max-w-screen-2xl px-4">
@@ -48,7 +48,11 @@ export default async function ProductPage({
                 <div className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden" />
               }
             >
-              <Gallery images={product.images} productId={product.id} />
+              <Gallery
+                src={product.src}
+                altText={product.altText}
+                productId={product.src}
+              />
             </Suspense>
           </div>
           <div>

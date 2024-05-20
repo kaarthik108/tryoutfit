@@ -2,6 +2,7 @@
 
 import { useImageContext } from "@/app/ImageContext";
 import { upload } from "@/app/actions/upload";
+import { uploadImageClient } from "@/app/actions/uploadClient";
 import {
   Sheet,
   SheetContent,
@@ -34,7 +35,7 @@ export function UploadSheet({
   const router = useRouter();
   const { selectedImage, setSelectedImage } = useImageContext();
   const [fileSizeTooBig, setFileSizeTooBig] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
 
   useEffect(() => {
     if (selectedImage) {
@@ -44,9 +45,9 @@ export function UploadSheet({
 
   useEffect(() => {
     if (initialSelectedImage) {
-      setUploadedImage(initialSelectedImage);
+      setSelectedImage(initialSelectedImage);
     }
-  }, [initialSelectedImage]);
+  }, [initialSelectedImage, setSelectedImage]);
 
   const onChangePicture = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,11 +57,7 @@ export function UploadSheet({
         if (file.size / 1024 / 1024 > 5) {
           setFileSizeTooBig(true);
         } else {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            setUploadedImage(e.target?.result as string);
-          };
-          reader.readAsDataURL(file);
+          setUploadedImage(file);
         }
       }
     },
@@ -73,19 +70,37 @@ export function UploadSheet({
   });
 
   useEffect(() => {
-    if (state.status === 200 && state.data) {
+    if (state.status === 200 && state.data && uploadedImage) {
       const { id, key } = state.data;
-      setSelectedImage(key);
-      onClose?.();
+      console.log("id", id);
+      console.log("key", key);
 
-      // Set the search params with the image ID
-      const searchParams = new URLSearchParams(window.location.search);
-      searchParams.set("imageId", id);
-      // Update the URL with the search params
-      const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-      router.push(newUrl);
+      uploadImageClient(uploadedImage, id)
+        .then((url) => {
+          setSelectedImage(url);
+          onClose?.();
+
+          // Set the search params with the image ID
+          const searchParams = new URLSearchParams(window.location.search);
+          searchParams.set("imageId", id);
+          // Update the URL with the search params
+          const newUrl = `${
+            window.location.pathname
+          }?${searchParams.toString()}`;
+          router.push(newUrl);
+        })
+        .catch((error) => {
+          console.error("Error uploading image:", error);
+        });
     }
-  }, [state.status, state.data, setSelectedImage, onClose, router]);
+  }, [
+    state.status,
+    state.data,
+    setSelectedImage,
+    onClose,
+    router,
+    uploadedImage,
+  ]);
 
   const handleCancelImage = () => {
     setSelectedImage(null);
@@ -93,8 +108,11 @@ export function UploadSheet({
     onClose?.();
   };
 
-  const handleDeleteUploadedImage = () => {
+  const handleDeleteImage = () => {
+    setSelectedImage(null);
     setUploadedImage(null);
+    localStorage.removeItem("selectedImage");
+    onClose?.();
   };
 
   return (
@@ -153,20 +171,11 @@ export function UploadSheet({
               }`}
             >
               {uploadedImage ? (
-                <>
-                  <img
-                    src={uploadedImage}
-                    alt="Uploaded"
-                    className="h-full w-full rounded-md object-cover"
-                  />
-                  <button
-                    type="button"
-                    className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
-                    onClick={handleDeleteUploadedImage}
-                  >
-                    <X className="h-4 w-4 text-gray-500" />
-                  </button>
-                </>
+                <img
+                  src={URL.createObjectURL(uploadedImage)}
+                  alt="Uploaded"
+                  className="h-full w-full rounded-md object-cover"
+                />
               ) : (
                 <div
                   className={`absolute z-[3] flex h-full w-full flex-col items-center justify-center rounded-md px-10 transition-all ${
@@ -208,6 +217,17 @@ export function UploadSheet({
             </button>
           )}
         </form>
+        {selectedImage && (
+          <div className="mt-4">
+            <button
+              type="button"
+              className="bg-red-500 text-white py-2 px-4 rounded"
+              onClick={handleDeleteImage}
+            >
+              Delete Image
+            </button>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   );

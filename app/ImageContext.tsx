@@ -18,20 +18,22 @@ export const useImageContext = () => {
 };
 
 export const ImageProvider = ({ children }: { children: React.ReactNode }) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(() => {
-    // if (typeof window !== "undefined") {
-    //   return localStorage.getItem("selectedImage");
-    // }
-    return null;
-  });
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // useEffect(() => {
-  //   if (selectedImage) {
-  //     localStorage.setItem("selectedImage", selectedImage);
-  //   } else {
-  //     localStorage.removeItem("selectedImage");
-  //   }
-  // }, [selectedImage]);
+  useEffect(() => {
+    const storedImage = localStorage.getItem("selectedImage");
+    if (storedImage) {
+      setSelectedImage(storedImage);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedImage) {
+      localStorage.setItem("selectedImage", selectedImage);
+    } else {
+      localStorage.removeItem("selectedImage");
+    }
+  }, [selectedImage]);
 
   return (
     <ImageContext.Provider value={{ selectedImage, setSelectedImage }}>

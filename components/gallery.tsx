@@ -7,10 +7,12 @@ import { useState } from "react";
 import { UploadSheet } from "./UploadModal";
 
 export function Gallery({
-  images,
+  src,
+  altText,
   productId,
 }: {
-  images: { src: string; altText: string };
+  src: string;
+  altText: string;
   productId: string;
 }) {
   const [imageUrl, setImageUrl] = useState("");
@@ -19,7 +21,7 @@ export function Gallery({
   const [isLoading, setIsLoading] = useState(false);
 
   console.log("selectedImage", selectedImage);
-  console.log("imageUrl", images.src);
+  console.log("imageUrl", src);
 
   const handleTryThis = async () => {
     if (!selectedImage) {
@@ -34,7 +36,7 @@ export function Gallery({
 
     try {
       setIsLoading(true);
-      const output = await Inference(selectedImage as string, images.src);
+      const output = await Inference(selectedImage as string, src);
       console.log(output);
       setImageUrl(output as string);
     } catch (error) {
@@ -48,13 +50,13 @@ export function Gallery({
     <>
       <div className="flex flex-col lg:flex-row lg:space-x-4">
         <div className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden">
-          {images.src && (
+          {src && (
             <Image
               className="h-full w-full object-contain"
               fill
               sizes="(min-width: 1024px) 66vw, 100vw"
-              alt={images?.altText as string}
-              src={images?.src as string}
+              alt={altText as string}
+              src={src as string}
               priority={true}
             />
           )}

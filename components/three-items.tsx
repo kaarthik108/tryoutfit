@@ -19,9 +19,9 @@ function ThreeItemGridItem({
           : "md:col-span-2 md:row-span-1"
       }
     >
-      <div
+      <Link
         className="relative block aspect-square h-full w-full"
-        // href={`/product/${item.handle}`}
+        href={`/product/${item.handle}`}
       >
         <GridTileImage
           src={item.featuredImage.url}
@@ -40,7 +40,7 @@ function ThreeItemGridItem({
             currencyCode: item.priceRange.maxVariantPrice.currencyCode,
           }}
         />
-      </div>
+      </Link>
     </div>
   );
 }
@@ -72,11 +72,12 @@ type Product = {
     };
   };
 };
+// amplify-tryoutfit-kaarthikand-tryoutbucketccc32003-bhgw6f11banb.s3.amazonaws.com/img/t-shirt-circles-black.png
 
 const homepageItems = [
   {
-    handle: "product-1",
-    title: "Product 1",
+    handle: "t-shirt-circles-black",
+    title: "t-shirt circles black",
     featuredImage: {
       url: "/assets/t-shirt-circles-black.png",
     },
@@ -88,10 +89,10 @@ const homepageItems = [
     },
   },
   {
-    handle: "product-2",
-    title: "Product 2",
+    handle: "2",
+    title: "t-shirt circles blue",
     featuredImage: {
-      url: "/assets/bag-black.png",
+      url: "/assets/t-shirt-circles-blue.png",
     },
     priceRange: {
       maxVariantPrice: {

@@ -1,18 +1,19 @@
 "use server";
 
-import Replicate from "replicate";
 // import { waitUntil } from "@vercel/functions";
-import { generateClient } from "aws-amplify/api";
 
-import { Schema } from "@/amplify/data/resource";
+// import { Schema } from "@/amplify/data/resource";
+import { cookieBasedClient } from "@/lib/amplify-utils";
 import { Amplify } from "aws-amplify";
-import { getUrl, uploadData } from "aws-amplify/storage";
-import outputs from "../../amplify_outputs.json";
+import { uploadData } from "aws-amplify/storage";
+import Replicate from "replicate";
+import { bucketUrl } from "./uploadClient";
+// import outputs from "../../amplify_outputs.json";
 
-Amplify.configure(outputs);
+// Amplify.configure(outputs, { ssr: true });
 
 export async function upload(previousState: any, formData: FormData) {
-  const client = generateClient<Schema>({});
+  // const client = generateClient<Schema>({});
 
   console.log("uploading image");
   const image = formData.get("image") as File;
@@ -21,46 +22,53 @@ export async function upload(previousState: any, formData: FormData) {
   }
   console.log(image);
 
-  const response = await client.models.images.create({
-    path: image.name,
-  });
+  const { data: response } = await cookieBasedClient.models.Images.create(
+    {
+      path: image.name,
+    },
+    {
+      authMode: "apiKey",
+    }
+  );
+  console.log(response);
 
-  const data = response.data;
+  // const data = {
+  //   id: "3a3f45bd-c4a9-4961-8178-6b6b43ce2c43",
+  //   path: "musk-1.jpeg",
+  //   createdAt: "2024-05-20T02:23:10.813Z",
+  //   updatedAt: "2024-05-20T02:23:10.813Z",
+  // };
 
-  if (!data) {
+  if (!response) {
     return { message: "Failed to upload image", status: 400 };
   }
-
   try {
-    // Upload the image to S3 using Amplify
-    const result = await uploadData({
-      data: image,
-      path: `img/${data.id}-${image.name}`,
-      options: {
-        contentType: "image/*",
-      },
-    }).result;
+    // const result = await uploadData({
+    //   data: image,
+    //   path: `img/${data.id}-${image.name}`,
+    // }).result;
 
-    console.log("Image uploaded successfully:", result);
+    // console.log("Image uploaded successfully:", result);
 
-    const updateResponse = await client.models.images.update({
-      id: data.id,
-      path: result.path,
-    });
+    // const updateResponse = await cookieBasedClient.models.Images.update(
+    //   {
+    //     id: data.id,
+    //     path: `img/${data.id}-${image.name}`,
+    //   },
+    //   {
+    //     authMode: "apiKey",
+    //   }
+    // );
 
-    const updatedData = updateResponse.data;
+    // const updatedData = updateResponse.data;
 
-    if (!updatedData) {
-      return { message: "Failed to upload image", status: 400 };
-    }
-
-    const url = `https://amplify-tryoutfit-kaarthikand-tryoutbucketccc32003-bhgw6f11banb.s3.amazonaws.com/${result.path}`;
+    // if (!updatedData) {
+    //   return { message: "Failed to upload image", status: 400 };
+    // }
+    // const url = `https://amplify-d37dg9uomxata7-main-b-tryoutbucketccc32003-tnbc2m6zayyj.s3.amazonaws.com/${result.path}`;
     return {
       message: "Image uploaded successfully",
-      data: {
-        id: data.id,
-        key: url,
-      },
+      data: { id: response.id, key: `${response.path}` },
       status: 200,
     };
   } catch (error) {
@@ -72,10 +80,32 @@ export async function upload(previousState: any, formData: FormData) {
   }
 }
 
+export async function updateImage({ id, path }: { id: string; path: string }) {
+  const updateResponse = await cookieBasedClient.models.Images.update(
+    {
+      id: id,
+      path: `${path}`,
+    },
+    {
+      authMode: "apiKey",
+    }
+  );
+
+  const updatedData = updateResponse.data;
+  console.log("updatedData", updatedData);
+
+  if (!updatedData) {
+    return { message: "Failed to upload image", status: 400 };
+  }
+}
+
 export async function Inference(selectedImage: string, imageUrl: string) {
+  console.log("selectedImage", selectedImage);
+  console.log("imageUrl", imageUrl);
+
   const replicate = new Replicate();
   const input = {
-    garm_img: imageUrl,
+    garm_img: bucketUrl + `/img` + imageUrl,
     human_img: selectedImage,
     garment_des: "t-shirt",
   };
@@ -85,4 +115,22 @@ export async function Inference(selectedImage: string, imageUrl: string) {
   );
 
   return output as unknown as string;
+}
+
+export async function getProduct(id: string) {
+  // const client = generateClient<Schema>({});
+
+  const response = await cookieBasedClient.models.product.get(
+    {
+      id: id,
+    },
+    {
+      authMode: "apiKey",
+      selectionSet: ["src", "altText", "description"],
+    }
+  );
+
+  console.log(response);
+
+  return response.data;
 }
