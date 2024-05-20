@@ -22,32 +22,28 @@ const predefinedImages = [
 ];
 
 export function UploadSheet({
-  onImageSelect,
   onClose,
   open,
-  initialSelectedImage,
 }: {
-  onImageSelect?: (image: string) => void;
   onClose?: () => void;
   open?: boolean;
-  initialSelectedImage?: string | null;
 }) {
   const router = useRouter();
   const { selectedImage, setSelectedImage } = useImageContext();
   const [fileSizeTooBig, setFileSizeTooBig] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (selectedImage) {
-      onImageSelect?.(selectedImage);
+      onImageSelect(selectedImage);
     }
-  }, [selectedImage, onImageSelect]);
+  }, [selectedImage]);
 
-  useEffect(() => {
-    if (initialSelectedImage) {
-      setSelectedImage(initialSelectedImage);
-    }
-  }, [initialSelectedImage, setSelectedImage]);
+  const onImageSelect = (image: string) => {
+    setSelectedImage(image);
+    setUploadedImage(null);
+  };
 
   const onChangePicture = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,10 +54,11 @@ export function UploadSheet({
           setFileSizeTooBig(true);
         } else {
           setUploadedImage(file);
+          setSelectedImage(null);
         }
       }
     },
-    []
+    [setSelectedImage]
   );
 
   const [state, uploadFormAction] = useFormState(upload, {
@@ -75,6 +72,7 @@ export function UploadSheet({
       console.log("id", id);
       console.log("key", key);
 
+      setIsUploading(true);
       uploadImageClient(uploadedImage, id)
         .then((url) => {
           setSelectedImage(url);
@@ -91,6 +89,9 @@ export function UploadSheet({
         })
         .catch((error) => {
           console.error("Error uploading image:", error);
+        })
+        .finally(() => {
+          setIsUploading(false);
         });
     }
   }, [
@@ -106,6 +107,13 @@ export function UploadSheet({
     setSelectedImage(null);
     setUploadedImage(null);
     onClose?.();
+
+    // Remove the image ID from the search params
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.delete("imageId");
+    // Update the URL without the image ID
+    const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+    router.push(newUrl);
   };
 
   const handleDeleteImage = () => {
@@ -113,6 +121,13 @@ export function UploadSheet({
     setUploadedImage(null);
     localStorage.removeItem("selectedImage");
     onClose?.();
+
+    // Remove the image ID from the search params
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.delete("imageId");
+    // Update the URL without the image ID
+    const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+    router.push(newUrl);
   };
 
   return (
@@ -139,7 +154,7 @@ export function UploadSheet({
                   className={`cursor-pointer ${
                     selectedImage === image ? "border-2 border-blue-500" : ""
                   }`}
-                  onClick={() => setSelectedImage(image)}
+                  onClick={() => onImageSelect(image)}
                 />
                 {selectedImage === image && (
                   <button
@@ -155,79 +170,77 @@ export function UploadSheet({
           </div>
 
           {/* Image upload */}
-          <div>
-            <div className="flex items-center justify-between">
-              <p className="block text-sm font-medium text-gray-700">Photo</p>
-              {fileSizeTooBig && (
-                <p className="text-sm text-red-500">
-                  File size too big (max 5MB)
-                </p>
-              )}
-            </div>
-            <label
-              htmlFor="image-upload"
-              className={`group relative mt-2 flex h-72 cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white shadow-sm transition-all hover:bg-gray-50 ${
-                uploadedImage ? "border-blue-500" : ""
-              }`}
-            >
-              {uploadedImage ? (
-                <img
-                  src={URL.createObjectURL(uploadedImage)}
-                  alt="Uploaded"
-                  className="h-full w-full rounded-md object-cover"
+          {!selectedImage && (
+            <div>
+              <div className="flex items-center justify-between">
+                <p className="block text-sm font-medium text-gray-700">Photo</p>
+                {fileSizeTooBig && (
+                  <p className="text-sm text-red-500">
+                    File size too big (max 5MB)
+                  </p>
+                )}
+              </div>
+              <label
+                htmlFor="image-upload"
+                className={`group relative mt-2 flex h-72 cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white shadow-sm transition-all hover:bg-gray-50 ${
+                  uploadedImage ? "border-blue-500" : ""
+                }`}
+              >
+                {uploadedImage ? (
+                  <img
+                    src={URL.createObjectURL(uploadedImage)}
+                    alt="Uploaded"
+                    className="h-full w-full rounded-md object-cover"
+                  />
+                ) : (
+                  <div className="absolute z-[3] flex h-full w-full flex-col items-center justify-center rounded-md px-10 transition-all bg-white opacity-100 hover:bg-gray-50">
+                    <UploadCloud className="h-7 w-7 text-gray-500 transition-all duration-75 group-hover:scale-110 group-active:scale-95" />
+                    <p className="mt-2 text-center text-sm text-gray-500">
+                      Click to upload.
+                    </p>
+                    <p className="mt-2 text-center text-sm text-gray-500">
+                      Recommended: 1:1 square ratio, with a clear view of your
+                      face
+                    </p>
+                    <span className="sr-only">Image upload</span>
+                  </div>
+                )}
+              </label>
+              <div className="mt-1 flex rounded-md shadow-sm">
+                <input
+                  id="image-upload"
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={onChangePicture}
                 />
-              ) : (
-                <div
-                  className={`absolute z-[3] flex h-full w-full flex-col items-center justify-center rounded-md px-10 transition-all ${
-                    selectedImage
-                      ? "bg-white/80 opacity-0 hover:opacity-100 hover:backdrop-blur-md"
-                      : "bg-white opacity-100 hover:bg-gray-50"
-                  }`}
-                >
-                  <UploadCloud className="h-7 w-7 text-gray-500 transition-all duration-75 group-hover:scale-110 group-active:scale-95" />
-                  <p className="mt-2 text-center text-sm text-gray-500">
-                    Click to upload.
-                  </p>
-                  <p className="mt-2 text-center text-sm text-gray-500">
-                    Recommended: 1:1 square ratio, with a clear view of your
-                    face
-                  </p>
-                  <span className="sr-only">Image upload</span>
-                </div>
-              )}
-            </label>
-            <div className="mt-1 flex rounded-md shadow-sm">
-              <input
-                id="image-upload"
-                name="image"
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={onChangePicture}
-              />
+              </div>
             </div>
-          </div>
+          )}
 
-          {!selectedImage && uploadedImage && (
-            <button
-              type="submit"
-              className="bg-blue-500 text-white py-2 px-4 rounded"
-            >
-              Submit
-            </button>
+          {uploadedImage && (
+            <div>
+              <button
+                type="submit"
+                className={`bg-blue-500 text-white py-2 px-4 rounded ${
+                  isUploading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={isUploading}
+              >
+                {isUploading ? "Uploading..." : "Submit"}
+              </button>
+
+              <button
+                type="button"
+                className="bg-red-500 text-white py-2 px-4 rounded ml-4"
+                onClick={handleDeleteImage}
+              >
+                Delete Image
+              </button>
+            </div>
           )}
         </form>
-        {selectedImage && (
-          <div className="mt-4">
-            <button
-              type="button"
-              className="bg-red-500 text-white py-2 px-4 rounded"
-              onClick={handleDeleteImage}
-            >
-              Delete Image
-            </button>
-          </div>
-        )}
       </SheetContent>
     </Sheet>
   );

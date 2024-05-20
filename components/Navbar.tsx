@@ -1,6 +1,5 @@
 "use client";
 
-import { useImageContext } from "@/app/ImageContext";
 import Link from "next/link";
 import { Suspense, useState } from "react";
 import { UploadSheet } from "./UploadModal";
@@ -14,7 +13,6 @@ type Menu = { title: string; path: string };
 export default function Navbar() {
   const menu = test_menu as Menu[];
   const [showUploadSheet, setShowUploadSheet] = useState(false);
-  const { selectedImage } = useImageContext();
 
   const handleOpenSheet = () => {
     setShowUploadSheet(true);
@@ -68,7 +66,7 @@ export default function Navbar() {
       <UploadSheet
         open={showUploadSheet}
         onClose={handleCloseSheet}
-        initialSelectedImage={selectedImage}
+        // initialSelectedImage={selectedImage}
       />
     </nav>
   );

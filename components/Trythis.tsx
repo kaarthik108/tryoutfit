@@ -7,7 +7,6 @@ import { UploadSheet } from "./UploadModal";
 
 export default function Trythis() {
   const { selectedImage, setSelectedImage } = useImageContext();
-  console.log(selectedImage);
 
   const handleImageUpload = async () => {
     if (selectedImage) {
@@ -55,7 +54,7 @@ export default function Trythis() {
       <UploadSheet
         open={showUploadSheet}
         onClose={handleCloseSheet}
-        onImageSelect={(image) => setSelectedImage(image)}
+        // onImageSelect={(image) => setSelectedImage(image)}
       />
     </div>
   );

@@ -94,7 +94,7 @@ export function Gallery({
       <UploadSheet
         open={showUploadSheet}
         onClose={() => setShowUploadSheet(false)}
-        onImageSelect={(image) => setSelectedImage(image)}
+        // onImageSelect={(image) => setSelectedImage(image)}
       />
     </>
   );
