@@ -79,7 +79,7 @@ const homepageItems = [
     handle: "t-shirt-circles-black",
     title: "t-shirt circles black",
     featuredImage: {
-      url: "/assets/t-shirt-circles-black.png",
+      url: "/t-shirt-circles-black.png",
     },
     priceRange: {
       maxVariantPrice: {
