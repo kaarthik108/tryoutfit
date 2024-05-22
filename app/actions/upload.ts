@@ -43,29 +43,6 @@ export async function upload(previousState: any, formData: FormData) {
     return { message: "Failed to upload image", status: 400 };
   }
   try {
-    // const result = await uploadData({
-    //   data: image,
-    //   path: `img/${data.id}-${image.name}`,
-    // }).result;
-
-    // console.log("Image uploaded successfully:", result);
-
-    // const updateResponse = await cookieBasedClient.models.Images.update(
-    //   {
-    //     id: data.id,
-    //     path: `img/${data.id}-${image.name}`,
-    //   },
-    //   {
-    //     authMode: "apiKey",
-    //   }
-    // );
-
-    // const updatedData = updateResponse.data;
-
-    // if (!updatedData) {
-    //   return { message: "Failed to upload image", status: 400 };
-    // }
-    // const url = `https://amplify-d37dg9uomxata7-main-b-tryoutbucketccc32003-tnbc2m6zayyj.s3.amazonaws.com/${result.path}`;
     return {
       message: "Image uploaded successfully",
       data: { id: response.id, key: `${response.path}` },
@@ -100,9 +77,6 @@ export async function updateImage({ id, path }: { id: string; path: string }) {
 }
 
 export async function Inference(selectedImage: string, imageUrl: string) {
-  console.log("selectedImage", selectedImage);
-  console.log("imageUrl", imageUrl);
-
   const replicate = new Replicate();
   const input = {
     garm_img: bucketUrl + `/img` + imageUrl,

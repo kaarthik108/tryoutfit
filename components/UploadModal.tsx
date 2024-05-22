@@ -78,14 +78,14 @@ export function UploadSheet({
           setSelectedImage(url);
           onClose?.();
 
-          // Set the search params with the image ID
-          const searchParams = new URLSearchParams(window.location.search);
-          searchParams.set("imageId", id);
-          // Update the URL with the search params
-          const newUrl = `${
-            window.location.pathname
-          }?${searchParams.toString()}`;
-          router.push(newUrl);
+          // // Set the search params with the image ID
+          // const searchParams = new URLSearchParams(window.location.search);
+          // searchParams.set("imageId", id);
+          // // Update the URL with the search params
+          // const newUrl = `${
+          //   window.location.pathname
+          // }?${searchParams.toString()}`;
+          // router.push(newUrl);
         })
         .catch((error) => {
           console.error("Error uploading image:", error);
@@ -106,28 +106,28 @@ export function UploadSheet({
   const handleCancelImage = () => {
     setSelectedImage(null);
     setUploadedImage(null);
-    onClose?.();
+    // onClose?.();
 
-    // Remove the image ID from the search params
-    const searchParams = new URLSearchParams(window.location.search);
-    searchParams.delete("imageId");
-    // Update the URL without the image ID
-    const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-    router.push(newUrl);
+    // // Remove the image ID from the search params
+    // const searchParams = new URLSearchParams(window.location.search);
+    // searchParams.delete("imageId");
+    // // Update the URL without the image ID
+    // const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+    // router.push(newUrl);
   };
 
   const handleDeleteImage = () => {
     setSelectedImage(null);
     setUploadedImage(null);
     localStorage.removeItem("selectedImage");
-    onClose?.();
+    // onClose?.();
 
-    // Remove the image ID from the search params
-    const searchParams = new URLSearchParams(window.location.search);
-    searchParams.delete("imageId");
-    // Update the URL without the image ID
-    const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-    router.push(newUrl);
+    // // Remove the image ID from the search params
+    // const searchParams = new URLSearchParams(window.location.search);
+    // searchParams.delete("imageId");
+    // // Update the URL without the image ID
+    // const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+    // router.push(newUrl);
   };
 
   return (
@@ -199,8 +199,7 @@ export function UploadSheet({
                       Click to upload.
                     </p>
                     <p className="mt-2 text-center text-sm text-gray-500">
-                      Recommended: 1:1 square ratio, with a clear view of your
-                      face
+                      Recommended: 1:1 square ratio, max 5MB
                     </p>
                     <span className="sr-only">Image upload</span>
                   </div>

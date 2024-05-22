@@ -21,7 +21,7 @@ export async function uploadImageClient(image: File, id: string) {
 
     const url = `${bucketUrl}/${result.path}`;
 
-    await updateImage({ id, path: result.path });
+    // await updateImage({ id, path: result.path });
     return url;
   } catch (error) {
     console.error("Error uploading image:", error);
