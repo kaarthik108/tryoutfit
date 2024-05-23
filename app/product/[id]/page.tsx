@@ -1,33 +1,8 @@
-// product.tsx
-// import { getProduct } from "@/app/actions/upload";
 import { getProduct } from "@/app/actions/upload";
 import { Gallery } from "@/components/gallery";
-import { cookieBasedClient } from "@/lib/amplify-utils";
+import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-
-// Sample product record for testing
-const sampleProduct = {
-  id: "t-shirt-circles-black",
-  title: "T-Shirt Circles Black",
-  description: "This is a t-shirt with circles on it.",
-  // featuredImage: {
-  //   url: "https://example.com/sample-image.jpg",
-  // },
-  src: "/t-shirt-circles-black.png",
-  altText: "t-shirt-circles-black",
-  // availableForSale: true,
-  // priceRange: {
-  //   minVariantPrice: {
-  //     currencyCode: "USD",
-  //     amount: "9.99",
-  //   },
-  //   maxVariantPrice: {
-  //     currencyCode: "USD",
-  //     amount: "19.99",
-  //   },
-  // },
-};
 
 export default async function ProductPage({
   params,
@@ -55,10 +30,13 @@ export default async function ProductPage({
               />
             </Suspense>
           </div>
+          <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
           <div>
-            <h2 className="text-xl font-bold mb-2">Description</h2>
             <p>{product.description}</p>
           </div>
+          <Button className="mt-4 rounded-xl" variant={"secondary"}>
+            ${20} {"USD"}
+          </Button>
         </div>
       </div>
     </>

@@ -5,7 +5,9 @@ import { Inference } from "@/app/actions/upload";
 import { Download } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "sonner";
 import { UploadSheet } from "./UploadModal";
+import { Button } from "./ui/button";
 
 export function Gallery({
   src,
@@ -36,7 +38,18 @@ export function Gallery({
       const output = await Inference(selectedImage as string, src);
       console.log(output);
       setImageUrl(output as string);
+      toast("Image created sucessfully", {
+        description: "You can download the image now",
+        action: {
+          label: "Undo",
+          onClick: () => console.log("Undo"),
+        },
+      });
     } catch (error) {
+      toast("Error generating image", {
+        description: "Please try again",
+      });
+
       console.error("Error generating image:", error);
     } finally {
       setIsLoading(false);
@@ -57,6 +70,9 @@ export function Gallery({
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       forceDownload(blobUrl, `generated_image_${productId}.png`);
+      toast("Image downloaded successfully", {
+        description: "Check your downloads folder",
+      });
     } catch (error) {
       console.error("Error downloading image:", error);
     } finally {
@@ -127,13 +143,11 @@ export function Gallery({
         )}
       </div>
       <div className="mt-4">
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={handleTryThis}
-          disabled={isLoading}
-        >
-          {isLoading ? "Generating..." : "Try this"}
-        </button>
+        {!imageUrl && (
+          <Button onClick={handleTryThis} disabled={isLoading}>
+            {isLoading ? "Generating..." : "Try this"}
+          </Button>
+        )}
       </div>
       <UploadSheet
         open={showUploadSheet}

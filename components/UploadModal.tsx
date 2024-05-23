@@ -10,16 +10,22 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { StorageImage } from "@aws-amplify/ui-react-storage";
 import { UploadCloud, X } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useFormState } from "react-dom";
+import { toast } from "sonner";
+import SubmitButton from "./submit-button";
+import { Button } from "./ui/button";
 
 const predefinedImages = [
   "https://replicate.delivery/pbxt/KgwTlhCMvDagRrcVzZJbuozNJ8esPqiNAIJS3eMgHrYuHmW4/KakaoTalk_Photo_2024-04-04-21-44-45.png",
   "https://replicate.delivery/pbxt/KgwRNxqx2U8TUdq5Vxy7cCihIH5Ws4GBPMooiid3OHtk0B9k/out-0.png",
   "https://replicate.delivery/pbxt/KhBUJsv1Zap5TxaQHgt3TiUmwqs5WbPxnLQW9NWl9Hon3RXM/KakaoTalk_Photo_2024-04-04-21-20-19.png",
 ];
+const blurDataURL = `data:image/gif;base64,R0lGODlhAQABAPAAABsbG////yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==`;
 
 export function UploadSheet({
   onClose,
@@ -33,17 +39,41 @@ export function UploadSheet({
   const [fileSizeTooBig, setFileSizeTooBig] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [s3Image, sets3Image] = useState<string | null>(null);
+
+  console.log("selectedImage", selectedImage);
+
+  console.log("s3Image", s3Image);
+
+  useEffect(() => {
+    const storedS3Image = localStorage.getItem("s3Image");
+    if (storedS3Image) {
+      sets3Image(storedS3Image);
+    }
+  }, []);
+
+  const onImageSelect = useCallback(
+    (image: string) => {
+      setSelectedImage(image);
+      setUploadedImage(null);
+      sets3Image(null);
+      localStorage.removeItem("s3Image");
+    },
+    [setSelectedImage]
+  );
 
   useEffect(() => {
     if (selectedImage) {
       onImageSelect(selectedImage);
+      toast("Image selected", {
+        description: "You can now try the outfit with this image.",
+        action: {
+          label: "Undo",
+          onClick: () => console.log("Undo"),
+        },
+      });
     }
-  }, [selectedImage]);
-
-  const onImageSelect = (image: string) => {
-    setSelectedImage(image);
-    setUploadedImage(null);
-  };
+  }, [selectedImage, onImageSelect]);
 
   const onChangePicture = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,6 +94,7 @@ export function UploadSheet({
   const [state, uploadFormAction] = useFormState(upload, {
     message: "",
     status: 0,
+    loading: true,
   });
 
   useEffect(() => {
@@ -74,21 +105,21 @@ export function UploadSheet({
 
       setIsUploading(true);
       uploadImageClient(uploadedImage, id)
-        .then((url) => {
-          setSelectedImage(url);
+        .then((res) => {
+          setSelectedImage(res.url);
+          sets3Image(res.path);
+          localStorage.setItem("s3Image", res.path); // Store the s3Image URL in local storage
           onClose?.();
-
-          // // Set the search params with the image ID
-          // const searchParams = new URLSearchParams(window.location.search);
-          // searchParams.set("imageId", id);
-          // // Update the URL with the search params
-          // const newUrl = `${
-          //   window.location.pathname
-          // }?${searchParams.toString()}`;
-          // router.push(newUrl);
         })
         .catch((error) => {
           console.error("Error uploading image:", error);
+          toast("Error uploading image", {
+            description: "Please try again",
+            action: {
+              label: "Undo",
+              onClick: () => console.log("Undo"),
+            },
+          });
         })
         .finally(() => {
           setIsUploading(false);
@@ -106,46 +137,35 @@ export function UploadSheet({
   const handleCancelImage = () => {
     setSelectedImage(null);
     setUploadedImage(null);
-    // onClose?.();
-
-    // // Remove the image ID from the search params
-    // const searchParams = new URLSearchParams(window.location.search);
-    // searchParams.delete("imageId");
-    // // Update the URL without the image ID
-    // const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-    // router.push(newUrl);
   };
 
   const handleDeleteImage = () => {
     setSelectedImage(null);
     setUploadedImage(null);
+    sets3Image("");
     localStorage.removeItem("selectedImage");
-    // onClose?.();
-
-    // // Remove the image ID from the search params
-    // const searchParams = new URLSearchParams(window.location.search);
-    // searchParams.delete("imageId");
-    // // Update the URL without the image ID
-    // const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-    // router.push(newUrl);
+    localStorage.removeItem("s3Image");
+    toast("Image deleted", {
+      description: "You can now select another image.",
+      action: {
+        label: "Undo",
+        onClick: () => console.log("Undo"),
+      },
+    });
   };
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Upload Image</SheetTitle>
+          <SheetTitle>Choose Model</SheetTitle>
           <SheetDescription>
-            Select an image from the predefined options or upload your own.
+            Select a model from the predefined options or upload your own.
           </SheetDescription>
         </SheetHeader>
         <form action={uploadFormAction} className="grid gap-6">
-          <div className="flex flex-col items-center justify-center space-y-3">
-            <p className="text-sm text-red-600">{state.message}</p>
-          </div>
-
           {/* Predefined images */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 mt-2">
             {predefinedImages.map((image, index) => (
               <div key={index} className="relative">
                 <img
@@ -173,7 +193,7 @@ export function UploadSheet({
           {!selectedImage && (
             <div>
               <div className="flex items-center justify-between">
-                <p className="block text-sm font-medium text-gray-700">Photo</p>
+                <p className="block text-sm font-medium">Upload</p>
                 {fileSizeTooBig && (
                   <p className="text-sm text-red-500">
                     File size too big (max 5MB)
@@ -182,15 +202,16 @@ export function UploadSheet({
               </div>
               <label
                 htmlFor="image-upload"
-                className={`group relative mt-2 flex h-72 cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white shadow-sm transition-all hover:bg-gray-50 ${
+                className={`group relative mt-2 flex h-96 cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white shadow-sm transition-all hover:bg-gray-50 ${
                   uploadedImage ? "border-blue-500" : ""
                 }`}
               >
                 {uploadedImage ? (
-                  <img
+                  <Image
                     src={URL.createObjectURL(uploadedImage)}
                     alt="Uploaded"
                     className="h-full w-full rounded-md object-cover"
+                    fill
                   />
                 ) : (
                   <div className="absolute z-[3] flex h-full w-full flex-col items-center justify-center rounded-md px-10 transition-all bg-white opacity-100 hover:bg-gray-50">
@@ -218,26 +239,58 @@ export function UploadSheet({
             </div>
           )}
 
-          {uploadedImage && (
-            <div>
-              <button
-                type="submit"
-                className={`bg-blue-500 text-white py-2 px-4 rounded ${
-                  isUploading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={isUploading}
-              >
-                {isUploading ? "Uploading..." : "Submit"}
-              </button>
+          {selectedImage && s3Image && (
+            <>
+              <h2 className="text-sm font-medium mt-4">Selected Image</h2>
+              <div className="relative aspect-square h-full w-full overflow-hidden">
+                <StorageImage
+                  path={s3Image}
+                  alt="model image"
+                  className="h-full w-full object-contain"
+                  fallbackSrc={blurDataURL}
+                />
+              </div>
+            </>
+          )}
+          {selectedImage && !s3Image && (
+            <>
+              <h2 className="text-sm font-medium mt-4">Selected Image</h2>
+              <div className="relative aspect-square h-full w-full overflow-hidden">
+                <Image
+                  src={selectedImage}
+                  alt="model image"
+                  className="h-full w-full object-contain"
+                  fill
+                />
+              </div>
+            </>
+          )}
 
-              <button
+          {uploadedImage && (
+            <div className="flex items-center gap-2">
+              <SubmitButton uploading={isUploading} />
+
+              <Button
                 type="button"
-                className="bg-red-500 text-white py-2 px-4 rounded ml-4"
+                className="rounded"
+                variant={"ghost"}
+                size={"sm"}
                 onClick={handleDeleteImage}
               >
-                Delete Image
-              </button>
+                Delete
+              </Button>
             </div>
+          )}
+          {selectedImage && (
+            <Button
+              type="button"
+              className="rounded"
+              variant={"outline"}
+              size={"sm"}
+              onClick={handleDeleteImage}
+            >
+              Delete
+            </Button>
           )}
         </form>
       </SheetContent>

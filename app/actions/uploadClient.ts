@@ -1,17 +1,11 @@
-// uploadClient.ts
 import { Amplify } from "aws-amplify";
-import { uploadData } from "aws-amplify/storage";
+import { getUrl, uploadData } from "aws-amplify/storage";
 import outputs from "../../amplify_outputs.json";
 import { updateImage } from "./upload";
 
 Amplify.configure(outputs, { ssr: true });
 
-export const bucketUrl = `https://amplify-tryoutfit-kaarthikand-tryoutbucketccc32003-sazzlwg5m0ej.s3.amazonaws.com`;
-
 export async function uploadImageClient(image: File, id: string) {
-  console.log("image", image);
-  console.log("id", id);
-
   try {
     const result = await uploadData({
       data: image,
@@ -19,10 +13,13 @@ export async function uploadImageClient(image: File, id: string) {
     }).result;
     console.log("Image uploaded successfully:", result);
 
-    const url = `${bucketUrl}/${result.path}`;
+    const signedURL = await getUrl({
+      path: result.path,
+      options: { expiresIn: 3600, useAccelerateEndpoint: true },
+    });
 
     // await updateImage({ id, path: result.path });
-    return url;
+    return { url: signedURL.url.toString(), path: result.path };
   } catch (error) {
     console.error("Error uploading image:", error);
     throw error;

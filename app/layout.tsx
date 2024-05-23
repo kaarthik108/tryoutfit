@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Auth from "@/components/auth/Auth";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { ReactNode } from "react";
 import ConfigureAmplifyClientSide from "./ConfigureAmplifyClientSide";
 import { ImageProvider } from "./ImageContext";
@@ -32,6 +32,7 @@ export default async function RootLayout({
             <ImageProvider>
               <Navbar />
               <main>{children}</main>
+              <Toaster />
             </ImageProvider>
           </Auth>
         </ThemeProvider>

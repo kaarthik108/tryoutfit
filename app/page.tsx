@@ -1,12 +1,11 @@
-import { ThreeItemGrid } from "@/components/three-items";
-import Image from "next/image";
+import Footer from "@/components/Footer";
+import { ProductGrid } from "@/components/three-items";
 
 export default async function HomePage() {
   return (
     <>
-      <ThreeItemGrid />
-      {/* <Carousel /> */}
-      {/* <Footer /> */}
+      <ProductGrid />
+      <Footer />
     </>
   );
 }
