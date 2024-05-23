@@ -59,6 +59,8 @@ export async function updateImage({ id, path }: { id: string; path: string }) {
 export async function Inference(selectedImage: string, imageUrl: string) {
   const replicate = new Replicate();
 
+  console.log("image", process.env.BUCKET_URL + `/img` + imageUrl);
+
   const input = {
     garm_img: process.env.BUCKET_URL + `/img` + imageUrl,
     human_img: selectedImage,
