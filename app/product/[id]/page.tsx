@@ -26,7 +26,7 @@ export default async function ProductPage({
               <Gallery
                 src={product.src}
                 altText={product.altText}
-                productId={product.src}
+                category={product.category || ""}
               />
             </Suspense>
           </div>

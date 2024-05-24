@@ -21,11 +21,19 @@ import SubmitButton from "./submit-button";
 import { Button } from "./ui/button";
 
 const predefinedImages = [
-  "https://replicate.delivery/pbxt/KgwTlhCMvDagRrcVzZJbuozNJ8esPqiNAIJS3eMgHrYuHmW4/KakaoTalk_Photo_2024-04-04-21-44-45.png",
-  "https://replicate.delivery/pbxt/KgwRNxqx2U8TUdq5Vxy7cCihIH5Ws4GBPMooiid3OHtk0B9k/out-0.png",
-  "https://replicate.delivery/pbxt/KhBUJsv1Zap5TxaQHgt3TiUmwqs5WbPxnLQW9NWl9Hon3RXM/KakaoTalk_Photo_2024-04-04-21-20-19.png",
+  "img/predefined-model-0.png",
+  "img/predefined-model-2.png",
+  "img/predefined-model-1.png",
 ];
-const blurDataURL = `data:image/gif;base64,R0lGODlhAQABAPAAABsbG////yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==`;
+
+const blurDataURL = `data:image/svg+xml;base64,${btoa(`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="5" />
+    </filter>
+    <rect fill="#64748b" width="100" height="100" filter="url(#blur)" />
+  </svg>
+`)}`;
 
 export function UploadSheet({
   onClose,
@@ -39,25 +47,13 @@ export function UploadSheet({
   const [fileSizeTooBig, setFileSizeTooBig] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [s3Image, sets3Image] = useState<string | null>(null);
 
   console.log("selectedImage", selectedImage);
-
-  console.log("s3Image", s3Image);
-
-  useEffect(() => {
-    const storedS3Image = localStorage.getItem("s3Image");
-    if (storedS3Image) {
-      sets3Image(storedS3Image);
-    }
-  }, []);
 
   const onImageSelect = useCallback(
     (image: string) => {
       setSelectedImage(image);
       setUploadedImage(null);
-      sets3Image(null);
-      localStorage.removeItem("s3Image");
     },
     [setSelectedImage]
   );
@@ -106,9 +102,7 @@ export function UploadSheet({
       setIsUploading(true);
       uploadImageClient(uploadedImage, id)
         .then((res) => {
-          setSelectedImage(res.url);
-          sets3Image(res.path);
-          localStorage.setItem("s3Image", res.path); // Store the s3Image URL in local storage
+          setSelectedImage(res.path);
           onClose?.();
         })
         .catch((error) => {
@@ -142,9 +136,7 @@ export function UploadSheet({
   const handleDeleteImage = () => {
     setSelectedImage(null);
     setUploadedImage(null);
-    sets3Image("");
     localStorage.removeItem("selectedImage");
-    localStorage.removeItem("s3Image");
     toast("Image deleted", {
       description: "You can now select another image.",
       action: {
@@ -168,13 +160,14 @@ export function UploadSheet({
           <div className="grid grid-cols-3 gap-4 mt-2">
             {predefinedImages.map((image, index) => (
               <div key={index} className="relative">
-                <img
-                  src={image}
+                <StorageImage
+                  path={image}
                   alt={`Predefined ${index}`}
                   className={`cursor-pointer ${
                     selectedImage === image ? "border-2 border-blue-500" : ""
                   }`}
                   onClick={() => onImageSelect(image)}
+                  fallbackSrc={blurDataURL}
                 />
                 {selectedImage === image && (
                   <button
@@ -239,28 +232,15 @@ export function UploadSheet({
             </div>
           )}
 
-          {selectedImage && s3Image && (
+          {selectedImage && (
             <>
               <h2 className="text-sm font-medium mt-4">Selected Image</h2>
               <div className="relative aspect-square h-full w-full overflow-hidden">
                 <StorageImage
-                  path={s3Image}
+                  path={selectedImage}
                   alt="model image"
                   className="h-full w-full object-contain"
                   fallbackSrc={blurDataURL}
-                />
-              </div>
-            </>
-          )}
-          {selectedImage && !s3Image && (
-            <>
-              <h2 className="text-sm font-medium mt-4">Selected Image</h2>
-              <div className="relative aspect-square h-full w-full overflow-hidden">
-                <Image
-                  src={selectedImage}
-                  alt="model image"
-                  className="h-full w-full object-contain"
-                  fill
                 />
               </div>
             </>

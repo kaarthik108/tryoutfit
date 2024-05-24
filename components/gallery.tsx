@@ -2,6 +2,7 @@
 "use client";
 import { useImageContext } from "@/app/ImageContext";
 import { Inference } from "@/app/actions/upload";
+import { getUrl } from "aws-amplify/storage";
 import { Download } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -12,17 +13,19 @@ import { Button } from "./ui/button";
 export function Gallery({
   src,
   altText,
-  productId,
+  category,
 }: {
   src: string;
   altText: string;
-  productId: string;
+  category: string;
 }) {
   const [imageUrl, setImageUrl] = useState("");
   const { selectedImage } = useImageContext();
   const [showUploadSheet, setShowUploadSheet] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  console.log("Selected Image:", selectedImage);
 
   const handleTryThis = async () => {
     if (!selectedImage) {
@@ -35,7 +38,16 @@ export function Gallery({
     }
     try {
       setIsLoading(true);
-      const output = await Inference(selectedImage as string, src);
+      const signedURL = await getUrl({
+        path: selectedImage,
+        options: { expiresIn: 100, useAccelerateEndpoint: true },
+      });
+      const output = await Inference(
+        signedURL.url.toString(),
+        src,
+        category,
+        altText
+      );
       console.log(output);
       setImageUrl(output as string);
       toast("Image created sucessfully", {
@@ -69,7 +81,7 @@ export function Gallery({
       });
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
-      forceDownload(blobUrl, `generated_image_${productId}.png`);
+      forceDownload(blobUrl, `generated_image_${category}.png`);
       toast("Image downloaded successfully", {
         description: "Check your downloads folder",
       });

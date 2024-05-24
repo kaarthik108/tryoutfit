@@ -10,19 +10,19 @@ export async function upload(previousState: any, formData: FormData) {
     return { message: "Missing image", status: 400, loading: false };
   }
 
-  const { data: response } = await cookieBasedClient.models.Images.create(
-    {
-      path: image.name,
-    },
-    {
-      authMode: "apiKey",
-    }
-  );
-
-  if (!response) {
-    return { message: "Failed to upload image", status: 400 };
-  }
   try {
+    const { data: response } = await cookieBasedClient.models.Images.create(
+      {
+        path: image.name,
+      },
+      {
+        authMode: "apiKey",
+      }
+    );
+
+    if (!response) {
+      return { message: "Failed to upload image", status: 400 };
+    }
     return {
       message: "Image uploaded successfully",
       data: { id: response.id, key: `${response.path}` },
@@ -56,7 +56,12 @@ export async function updateImage({ id, path }: { id: string; path: string }) {
   }
 }
 
-export async function Inference(selectedImage: string, imageUrl: string) {
+export async function Inference(
+  selectedImage: string,
+  imageUrl: string,
+  category: string,
+  altText: string
+) {
   const replicate = new Replicate();
 
   console.log("image", process.env.BUCKET_URL + `/img` + imageUrl);
@@ -64,7 +69,8 @@ export async function Inference(selectedImage: string, imageUrl: string) {
   const input = {
     garm_img: process.env.BUCKET_URL + `/img` + imageUrl,
     human_img: selectedImage,
-    garment_des: "t-shirt",
+    category: category,
+    garment_des: altText,
   };
   const output = await replicate.run(
     "cuuupid/idm-vton:906425dbca90663ff5427624839572cc56ea7d380343d13e2a4c4b09d3f0c30f",
@@ -81,7 +87,7 @@ export async function getProduct(id: string) {
     },
     {
       authMode: "apiKey",
-      selectionSet: ["src", "altText", "description", "title"],
+      selectionSet: ["src", "altText", "description", "title", "category"],
     }
   );
 

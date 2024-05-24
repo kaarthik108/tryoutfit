@@ -20,6 +20,7 @@ const schema = a.schema({
       description: a.string(),
       src: a.string(),
       altText: a.string(),
+      category: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });
