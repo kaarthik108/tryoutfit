@@ -17,10 +17,10 @@ export const createUrl = (
 
 export const homepageItems = [
   {
-    handle: "sophisticated-mens-white-polo-shirt",
-    title: "Sophisticated Men's White Polo Shirt",
+    handle: "black-shirt",
+    title: "Elegant black shirt with a sleek design",
     featuredImage: {
-      url: "/sophisticated-mens-white-polo-shirt.png",
+      url: "/black-shirt.png",
     },
     priceRange: {
       maxVariantPrice: {
@@ -70,7 +70,7 @@ export const homepageItems = [
   },
   {
     handle: "denim-skirt",
-    title: "Denim skirt",
+    title: "Classic Denim Skirt",
     featuredImage: {
       url: "/denim-skirt.png",
     },
@@ -82,10 +82,10 @@ export const homepageItems = [
     },
   },
   {
-    handle: "product-3",
-    title: "t-shirt spiral 1",
+    handle: "blue-t-shirt",
+    title: "Light Blue T-Shirt",
     featuredImage: {
-      url: "/t-shirt-spiral-1.png",
+      url: "/blue-t-shirt.png",
     },
     priceRange: {
       maxVariantPrice: {

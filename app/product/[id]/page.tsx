@@ -1,8 +1,30 @@
-import { getProduct } from "@/app/actions/upload";
+import { getAllProducts, getProduct } from "@/app/actions/upload";
 import { Gallery } from "@/components/gallery";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+
+export const runtime = "edge";
+
+export async function generateStaticParams() {
+  const products = await getAllProducts();
+  return products.map((product) => ({ params: { id: product.id } }));
+}
+
+export async function generateMetadata({
+  params: { id },
+}: {
+  params: { id: string };
+}) {
+  const product = await getProduct(id);
+
+  if (!product || !product.src || !product.altText) return notFound();
+  return {
+    title: product.title,
+    description: product.description,
+    image: product.src,
+  };
+}
 
 export default async function ProductPage({
   params,
@@ -10,7 +32,6 @@ export default async function ProductPage({
   params: { id: string };
 }) {
   const product = await getProduct(params.id);
-  console.log(product);
 
   if (!product || !product.src || !product.altText) return notFound();
   return (

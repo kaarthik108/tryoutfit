@@ -57,10 +57,9 @@ export function UploadSheet({
     },
     [setSelectedImage]
   );
-
   useEffect(() => {
     if (selectedImage) {
-      onImageSelect(selectedImage);
+      setUploadedImage(null);
       toast("Image selected", {
         description: "You can now try the outfit with this image.",
         action: {
@@ -69,7 +68,7 @@ export function UploadSheet({
         },
       });
     }
-  }, [selectedImage, onImageSelect]);
+  }, [selectedImage]);
 
   const onChangePicture = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,15 +158,15 @@ export function UploadSheet({
           {/* Predefined images */}
           <div className="grid grid-cols-3 gap-4 mt-2">
             {predefinedImages.map((image, index) => (
-              <div key={index} className="relative">
-                <StorageImage
-                  path={image}
+              <div key={index} className="relative h-36 w-full">
+                <Image
+                  src={"/" + image.split("/").pop()}
                   alt={`Predefined ${index}`}
-                  className={`cursor-pointer ${
+                  className={`cursor-pointer h-full w-full ${
                     selectedImage === image ? "border-2 border-blue-500" : ""
                   }`}
                   onClick={() => onImageSelect(image)}
-                  fallbackSrc={blurDataURL}
+                  fill
                 />
                 {selectedImage === image && (
                   <button
@@ -232,7 +231,7 @@ export function UploadSheet({
             </div>
           )}
 
-          {selectedImage && (
+          {selectedImage && selectedImage?.startsWith("https:") && (
             <>
               <h2 className="text-sm font-medium mt-4">Selected Image</h2>
               <div className="relative aspect-square h-full w-full overflow-hidden">
@@ -241,6 +240,20 @@ export function UploadSheet({
                   alt="model image"
                   className="h-full w-full object-contain"
                   fallbackSrc={blurDataURL}
+                />
+              </div>
+            </>
+          )}
+
+          {selectedImage && !selectedImage?.startsWith("https:") && (
+            <>
+              <h2 className="text-sm font-medium mt-4">Selected Image</h2>
+              <div className="relative aspect-square h-full w-full overflow-hidden">
+                <Image
+                  src={("/" + selectedImage?.split("/").pop()) as string}
+                  alt="model image"
+                  className="h-full w-full object-contain"
+                  fill
                 />
               </div>
             </>

@@ -14,7 +14,7 @@ export function ImageGrid({
   return (
     <div
       className={clsx(
-        "group relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl bg-neutral-900",
+        "group relative flex h-[90%] w-full items-center justify-center overflow-hidden rounded-xl bg-neutral-900",
         {
           "border-2 border-blue-400": active,
           "border-transparent": !active,

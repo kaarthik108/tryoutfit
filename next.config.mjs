@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
   images: {
     remotePatterns: [
       {
@@ -8,14 +13,8 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
-      {
-        protocol: "https",
-        hostname:
-          "amplify-tryoutfit-kaarthikand-tryoutbucketccc32003-bhgw6f11banb.s3.amazonaws.com",
-        port: "",
-        pathname: "/**",
-      },
     ],
+    minimumCacheTTL: 60,
   },
 };
 

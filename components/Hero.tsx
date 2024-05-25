@@ -8,7 +8,7 @@ function TopGrid({
   priority,
 }: {
   item: Product;
-  size: "full" | "half";
+  size: "full" | "half" | "small";
   priority?: boolean;
 }) {
   return (
