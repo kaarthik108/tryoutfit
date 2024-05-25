@@ -1,10 +1,9 @@
-import { getAllProducts, getProduct } from "@/app/actions/upload";
+import { getProduct } from "@/app/actions/upload";
+import { getAllProducts } from "@/app/actions/uploadClient";
 import { Gallery } from "@/components/gallery";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-
-export const runtime = "edge";
 
 export async function generateStaticParams() {
   const products = await getAllProducts();
