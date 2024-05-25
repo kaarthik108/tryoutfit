@@ -8,11 +8,3 @@ export const cookieBasedClient = generateServerClientUsingCookies<Schema>({
   cookies,
   authMode: "apiKey",
 });
-
-// import { Schema } from "@/amplify/data/resource";
-// import { Amplify } from "aws-amplify";
-// import { generateClient } from "aws-amplify/data";
-
-// Amplify.configure(outputs);
-
-// export const cookieBasedClient = generateClient<Schema>();

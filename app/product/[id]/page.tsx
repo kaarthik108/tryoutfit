@@ -1,5 +1,4 @@
 import { getProduct } from "@/app/actions/upload";
-import { getAllProducts } from "@/app/actions/uploadClient";
 import { Gallery } from "@/components/gallery";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";

@@ -31,7 +31,7 @@ export const homepageItems = [
   },
   {
     handle: "t-shirt-circles-blue",
-    title: "t-shirt circles blue",
+    title: "T-shirt circles blue",
     featuredImage: {
       url: "/t-shirt-circles-blue.png",
     },
