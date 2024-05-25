@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-export async function generateStaticParams() {
-  const products = await getAllProducts();
-  return products.map((product) => ({ params: { id: product.id } }));
-}
+// static params doesn't work
+// export async function generateStaticParams() {
+//   const products = await getAllProducts();
+//   return products.map((product) => ({ params: { id: product.id } }));
+// }
 
 export async function generateMetadata({
   params: { id },
