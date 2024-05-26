@@ -34,6 +34,8 @@ export function Gallery({
 
   console.log("imageUrl", imageUrl);
 
+  const imgg = imageUrl ? imageUrl.split("/output/")[1] : "";
+
   useEffect(() => {
     if (generation) {
       setImageUrl(generation);
@@ -238,7 +240,7 @@ export function Gallery({
                         width={300}
                         height={400}
                         alt="Generated Image"
-                        path={`output/${imageUrl.split("/output/")[1]}`}
+                        path={`output/${imgg}`}
                         fallbackSrc={blurDataURL}
                       />
                       <button
