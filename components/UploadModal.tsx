@@ -93,9 +93,6 @@ export function UploadSheet({
   useEffect(() => {
     if (state.status === 200 && state.data && uploadedImage) {
       const { id, key } = state.data;
-      console.log("id", id);
-      console.log("key", key);
-
       setIsUploading(true);
       uploadImageClient(uploadedImage, id)
         .then((res) => {
@@ -228,20 +225,38 @@ export function UploadSheet({
               </div>
             </div>
           )}
+          {/* TODO: clean this mess */}
+          {selectedImage &&
+            !selectedImage?.startsWith("https:") &&
+            predefinedImages.includes(selectedImage) && (
+              <>
+                <h2 className="text-sm font-medium mt-4">Selected Image</h2>
+                <div className="relative aspect-square h-full w-full overflow-hidden">
+                  <Image
+                    src={("/" + selectedImage.split("/").pop()) as string}
+                    alt="model image"
+                    className="h-full w-full object-contain"
+                    fill
+                  />
+                </div>
+              </>
+            )}
 
-          {selectedImage && !selectedImage?.startsWith("https:") && (
-            <>
-              <h2 className="text-sm font-medium mt-4">Selected Image</h2>
-              <div className="relative aspect-square h-full w-full overflow-hidden">
-                <StorageImage
-                  path={selectedImage}
-                  alt="model image"
-                  className="h-full w-full object-contain"
-                  fallbackSrc={blurDataURL}
-                />
-              </div>
-            </>
-          )}
+          {selectedImage &&
+            !selectedImage?.startsWith("https:") &&
+            !predefinedImages.includes(selectedImage) && (
+              <>
+                <h2 className="text-sm font-medium mt-4">Selected Image</h2>
+                <div className="relative aspect-square h-full w-full overflow-hidden">
+                  <StorageImage
+                    path={selectedImage}
+                    alt="model image"
+                    className="h-full w-full object-contain"
+                    fallbackSrc={blurDataURL}
+                  />
+                </div>
+              </>
+            )}
 
           {selectedImage && selectedImage?.startsWith("https:") && (
             <>
