@@ -23,6 +23,13 @@ const schema = a.schema({
       category: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
+  generations: a
+    .model({
+      id: a.id().required(),
+      output: a.string(),
+      failed: a.boolean(),
+    })
+    .authorization((allow) => [allow.publicApiKey()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;

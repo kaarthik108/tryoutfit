@@ -7,13 +7,15 @@ export default function Navbar() {
     <nav className="relative flex items-center justify-between p-4 lg:px-6">
       <div className="block flex-none md:hidden"></div>
       <div className="flex w-full items-center">
-        <Image
-          src="/logo.png"
-          alt="tryOutfit"
-          width={50}
-          height={50}
-          priority
-        />
+        <Link href="/">
+          <Image
+            src="/logo.png"
+            alt="tryOutfit"
+            width={50}
+            height={50}
+            priority
+          />
+        </Link>
         <div className="flex w-full md:w-1/3">
           <Link
             href="/"

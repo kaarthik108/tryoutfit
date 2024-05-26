@@ -1,11 +1,12 @@
-// gallery.tsx
 "use client";
 import { useImageContext } from "@/app/ImageContext";
 import { Inference } from "@/app/actions/upload";
+import { client } from "@/app/actions/uploadClient";
 import { getUrl } from "aws-amplify/storage";
 import { Download } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { UploadSheet } from "./UploadModal";
 import { Button } from "./ui/button";
@@ -14,18 +15,27 @@ export function Gallery({
   src,
   altText,
   category,
+  generation,
 }: {
   src: string;
   altText: string;
   category: string;
+  generation: string;
 }) {
   const [imageUrl, setImageUrl] = useState("");
   const { selectedImage } = useImageContext();
   const [showUploadSheet, setShowUploadSheet] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  console.log("Selected Image:", selectedImage);
+  useEffect(() => {
+    if (generation) {
+      setImageUrl(generation);
+    }
+  }, [generation]);
 
   const handleTryThis = async () => {
     if (!selectedImage) {
@@ -42,26 +52,88 @@ export function Gallery({
         path: selectedImage,
         options: { expiresIn: 100, useAccelerateEndpoint: true },
       });
-      const output = await Inference(
+      const id = crypto.randomUUID();
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("id", id);
+
+      const predictionId = await Inference(
         signedURL.url.toString(),
         src,
         category,
-        altText
+        altText,
+        id
       );
-      console.log(output);
-      setImageUrl(output as string);
-      toast("Image created sucessfully", {
-        description: "You can download the image now",
-        action: {
-          label: "Undo",
-          onClick: () => console.log("Undo"),
+      router.push(pathname + "?" + params.toString());
+
+      const createResponse = await client.models.generations.create(
+        {
+          id: id,
+          output: "",
+          failed: false,
         },
-      });
+        { authMode: "apiKey" }
+      );
+
+      if (!createResponse.data) {
+        toast("Error creating generation entry", {
+          description: "Please try again",
+        });
+        return;
+      }
+
+      const checkStatus = async () => {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_PRODUCTION_URL}/api/replicate/${predictionId}`,
+          { cache: "no-store" }
+        );
+        console.log("Response from replicate API:", response);
+
+        if (response.ok) {
+          const prediction = await response.json();
+          console.log("Prediction status:", prediction.status);
+          console.log("Prediction output:", prediction.output);
+
+          if (prediction.status === "succeeded") {
+            setImageUrl(prediction.output);
+            toast("Image created successfully", {
+              description: "You can download the image now",
+              action: {
+                label: "Undo",
+                onClick: () => console.log("Undo"),
+              },
+            });
+            return true;
+          } else if (prediction.status === "failed") {
+            toast("Error generating image", {
+              description: "Please try again",
+            });
+            return true;
+          }
+        } else {
+          toast("Error generating image", {
+            description: "Please try again",
+          });
+          return true;
+        }
+        return false;
+      };
+
+      // Start checking the status
+      let predictionCompleted = false;
+      while (!predictionCompleted) {
+        const result = await checkStatus();
+        if (result) {
+          console.log("Prediction completed:", result);
+
+          predictionCompleted = true;
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 3000)); // Delay for 2 seconds before checking again
+        }
+      }
     } catch (error) {
       toast("Error generating image", {
         description: "Please try again",
       });
-
       console.error("Error generating image:", error);
     } finally {
       setIsLoading(false);
@@ -99,6 +171,37 @@ export function Gallery({
     document.body.appendChild(a);
     a.click();
     a.remove();
+  };
+
+  const handleDelete = async () => {
+    try {
+      setIsLoading(true);
+      const params = new URLSearchParams(searchParams.toString());
+      const id = params.get("id");
+
+      if (id) {
+        // Delete the record in the database
+        await client.models.generations.delete(
+          { id: id },
+          { authMode: "apiKey" }
+        );
+
+        // Clear the search params
+        params.delete("id");
+        router.push(pathname + "?" + params.toString());
+
+        // Reset the state
+        setImageUrl("");
+        toast("Image deleted successfully");
+      }
+    } catch (error) {
+      toast("Error deleting image", {
+        description: "Please try again",
+      });
+      console.error("Error deleting image:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -155,9 +258,13 @@ export function Gallery({
         )}
       </div>
       <div className="mt-4">
-        {!imageUrl && (
+        {!imageUrl ? (
           <Button onClick={handleTryThis} disabled={isLoading}>
             {isLoading ? "Generating..." : "Try this"}
+          </Button>
+        ) : (
+          <Button onClick={handleDelete} disabled={isLoading}>
+            {isLoading ? "Deleting..." : "Delete"}
           </Button>
         )}
       </div>

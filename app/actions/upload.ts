@@ -60,11 +60,18 @@ export async function Inference(
   selectedImage: string,
   imageUrl: string,
   category: string,
-  altText: string
+  altText: string,
+  id: string
 ) {
   const replicate = new Replicate();
 
   console.log("image", process.env.BUCKET_URL + `/img` + imageUrl);
+  const domain =
+    process.env.NODE_ENV === "development"
+      ? process.env.TUNNEL_URL!
+      : `${process.env.NEXT_PUBLIC_PRODUCTION_URL}`;
+
+  console.log("domain", domain);
 
   const input = {
     garm_img: process.env.BUCKET_URL + `/img` + imageUrl,
@@ -72,12 +79,13 @@ export async function Inference(
     category: category,
     garment_des: altText,
   };
-  const output = await replicate.run(
-    "cuuupid/idm-vton:906425dbca90663ff5427624839572cc56ea7d380343d13e2a4c4b09d3f0c30f",
-    { input }
-  );
+  const prediction = await replicate.predictions.create({
+    version: "906425dbca90663ff5427624839572cc56ea7d380343d13e2a4c4b09d3f0c30f",
+    input: input,
+    webhook: `${domain}/api/webhooks/replicate/${id}`,
+  });
 
-  return output as unknown as string;
+  return prediction.id;
 }
 
 export async function getProduct(id: string) {
@@ -101,4 +109,18 @@ export async function getAllProducts() {
   });
 
   return response.data;
+}
+
+export async function getGeneration(id: string) {
+  const response = await cookieBasedClient.models.generations.get(
+    {
+      id: id,
+    },
+    {
+      authMode: "apiKey",
+      selectionSet: ["output", "failed"],
+    }
+  );
+
+  return response.data?.output!;
 }

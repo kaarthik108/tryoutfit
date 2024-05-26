@@ -1,4 +1,4 @@
-import { getProduct } from "@/app/actions/upload";
+import { getGeneration, getProduct } from "@/app/actions/upload";
 import { Gallery } from "@/components/gallery";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
@@ -27,12 +27,20 @@ export async function generateMetadata({
 
 export default async function ProductPage({
   params,
+  searchParams,
 }: {
   params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const product = await getProduct(params.id);
+  const generationId = searchParams?.id as string | undefined;
+
+  const [product, generationResult] = await Promise.all([
+    getProduct(params.id),
+    generationId ? getGeneration(generationId) : Promise.resolve(null),
+  ]);
 
   if (!product || !product.src || !product.altText) return notFound();
+
   return (
     <>
       <div className="mx-auto max-w-screen-2xl px-4">
@@ -47,6 +55,7 @@ export default async function ProductPage({
                 src={product.src}
                 altText={product.altText}
                 category={product.category || ""}
+                generation={generationResult || ""}
               />
             </Suspense>
           </div>
