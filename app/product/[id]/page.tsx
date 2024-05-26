@@ -38,7 +38,6 @@ export default async function ProductPage({
     getProduct(params.id),
     generationId ? getGeneration(generationId) : Promise.resolve(null),
   ]);
-
   if (!product || !product.src || !product.altText) return notFound();
 
   return (

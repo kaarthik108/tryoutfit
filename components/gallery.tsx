@@ -31,11 +31,6 @@ export function Gallery({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-
-  console.log("imageUrl", imageUrl);
-
-  const imgg = imageUrl ? imageUrl.split("/output/")[1] : "";
-
   useEffect(() => {
     if (generation) {
       setImageUrl(generation);
@@ -48,7 +43,6 @@ export function Gallery({
       return;
     }
     if (imageUrl) {
-      console.log("Image URL:", imageUrl);
       return imageUrl;
     }
     try {
@@ -91,13 +85,9 @@ export function Gallery({
           `${process.env.NEXT_PUBLIC_PRODUCTION_URL}/api/replicate/${predictionId}`,
           { cache: "no-store" }
         );
-        console.log("Response from replicate API:", response);
 
         if (response.ok) {
           const prediction = await response.json();
-          console.log("Prediction status:", prediction.status);
-          console.log("Prediction output:", prediction.output);
-
           if (prediction.status === "succeeded") {
             setImageUrl(prediction.output);
             toast("Image created successfully", {
@@ -128,7 +118,7 @@ export function Gallery({
       while (!predictionCompleted) {
         const result = await checkStatus();
         if (result) {
-          console.log("Prediction completed:", result);
+          console.log("Prediction completed:");
 
           predictionCompleted = true;
         } else {
@@ -235,13 +225,12 @@ export function Gallery({
                 <div className="relative h-full">
                   <div className="flex items-center justify-center h-full">
                     <div className="relative">
-                      <StorageImage
+                      <Image
                         className="h-full w-full object-contain"
                         width={300}
                         height={400}
                         alt="Generated Image"
-                        path={`output/${imgg}`}
-                        fallbackSrc={blurDataURL}
+                        src={imageUrl}
                       />
                       <button
                         className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md"

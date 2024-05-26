@@ -1,4 +1,3 @@
-import { uploadOutputToS3 } from "@/app/actions/upload";
 import { cookieBasedClient } from "@/lib/amplify-utils";
 import { NextRequest } from "next/server";
 
@@ -8,13 +7,13 @@ export async function POST(req: NextRequest) {
 
   if (status === "succeeded") {
     try {
-      const s3Url = await uploadOutputToS3(output, id);
-      console.log("Uploaded successfully to:", s3Url);
+      const expirationTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now as replicate output URL expiration time
 
       const updateResponse = await cookieBasedClient.models.generations.update(
         {
           id: id,
-          output: s3Url,
+          output: output,
+          ttl: expirationTime,
         },
         { authMode: "apiKey" }
       );

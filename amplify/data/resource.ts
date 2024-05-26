@@ -28,6 +28,7 @@ const schema = a.schema({
       id: a.id().required(),
       output: a.string(),
       failed: a.boolean(),
+      ttl: a.integer(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });
