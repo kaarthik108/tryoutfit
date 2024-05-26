@@ -4,7 +4,6 @@ import { cookieBasedClient } from "@/lib/amplify-utils";
 import Replicate from "replicate";
 
 export async function upload(previousState: any, formData: FormData) {
-  console.log("uploading image");
   const image = formData.get("image") as File;
   if (!image) {
     return { message: "Missing image", status: 400, loading: false };
@@ -49,7 +48,6 @@ export async function updateImage({ id, path }: { id: string; path: string }) {
   );
 
   const updatedData = updateResponse.data;
-  console.log("updatedData", updatedData);
 
   if (!updatedData) {
     return { message: "Failed to upload image", status: 400 };
@@ -65,13 +63,10 @@ export async function Inference(
 ) {
   const replicate = new Replicate();
 
-  console.log("image", process.env.BUCKET_URL + `/img` + imageUrl);
   const domain =
     process.env.NODE_ENV === "development"
       ? process.env.TUNNEL_URL!
       : `${process.env.NEXT_PUBLIC_PRODUCTION_URL}`;
-
-  console.log("domain", domain);
 
   const input = {
     garm_img: process.env.BUCKET_URL + `/img` + imageUrl,

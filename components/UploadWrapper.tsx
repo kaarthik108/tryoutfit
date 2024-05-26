@@ -1,5 +1,5 @@
 "use client";
-import { Settings } from "lucide-react";
+import { Camera } from "lucide-react";
 import { useState } from "react";
 import { UploadSheet } from "./UploadModal";
 import { Button } from "./ui/button";
@@ -18,7 +18,7 @@ export default function UploadSheetWrapper() {
   return (
     <>
       <Button onClick={handleOpenSheet} size={"sm"} variant={"outline"}>
-        <Settings className="" size={18} />
+        <Camera size={18} />
       </Button>
       <UploadSheet open={showUploadSheet} onClose={handleCloseSheet} />
     </>

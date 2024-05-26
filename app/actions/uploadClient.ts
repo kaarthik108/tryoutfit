@@ -17,14 +17,13 @@ export async function uploadImageClient(image: File, id: string) {
       data: image,
       path: `img/${id}-${image.name}`,
     }).result;
-    console.log("Image uploaded successfully:", result);
 
     const signedURL = await getUrl({
       path: result.path,
       options: { expiresIn: 3600, useAccelerateEndpoint: true },
     });
 
-    // await updateImage({ id, path: result.path });
+    await updateImage({ id, path: result.path });
     return { url: signedURL.url.toString(), path: result.path };
   } catch (error) {
     console.error("Error uploading image:", error);

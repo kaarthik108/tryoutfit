@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Auth from "@/components/auth/Auth";
 import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
+import Script from "next/script";
 import NextTopLoader from "nextjs-toploader";
 import { ReactNode } from "react";
 import ConfigureAmplifyClientSide from "./ConfigureAmplifyClientSide";
@@ -51,6 +52,11 @@ export default async function RootLayout({
           </Auth>
         </ThemeProvider>
       </body>
+      <Script
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon='{"token": "a17911032239460caa84f89c572d1d50"}'
+      ></Script>
     </html>
   );
 }
