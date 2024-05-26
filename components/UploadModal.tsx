@@ -48,8 +48,6 @@ export function UploadSheet({
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  console.log("selectedImage", selectedImage);
-
   const onImageSelect = useCallback(
     (image: string) => {
       setSelectedImage(image);
@@ -231,7 +229,7 @@ export function UploadSheet({
             </div>
           )}
 
-          {selectedImage && selectedImage?.startsWith("https:") && (
+          {selectedImage && !selectedImage?.startsWith("https:") && (
             <>
               <h2 className="text-sm font-medium mt-4">Selected Image</h2>
               <div className="relative aspect-square h-full w-full overflow-hidden">
@@ -245,12 +243,12 @@ export function UploadSheet({
             </>
           )}
 
-          {selectedImage && !selectedImage?.startsWith("https:") && (
+          {selectedImage && selectedImage?.startsWith("https:") && (
             <>
               <h2 className="text-sm font-medium mt-4">Selected Image</h2>
               <div className="relative aspect-square h-full w-full overflow-hidden">
                 <Image
-                  src={("/" + selectedImage?.split("/").pop()) as string}
+                  src={selectedImage}
                   alt="model image"
                   className="h-full w-full object-contain"
                   fill
