@@ -2,13 +2,14 @@
 import { useImageContext } from "@/app/ImageContext";
 import { Inference } from "@/app/actions/upload";
 import { client } from "@/app/actions/uploadClient";
+import { StorageImage } from "@aws-amplify/ui-react-storage";
 import { getUrl } from "aws-amplify/storage";
 import { Download } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { UploadSheet } from "./UploadModal";
+import { UploadSheet, blurDataURL } from "./UploadModal";
 import { Button } from "./ui/button";
 
 export function Gallery({
@@ -30,6 +31,8 @@ export function Gallery({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+
+  console.log("imageUrl", imageUrl);
 
   useEffect(() => {
     if (generation) {
@@ -230,13 +233,13 @@ export function Gallery({
                 <div className="relative h-full">
                   <div className="flex items-center justify-center h-full">
                     <div className="relative">
-                      <Image
-                        className=""
-                        width={400}
+                      <StorageImage
+                        className="h-full w-full object-contain"
+                        width={300}
                         height={400}
                         alt="Generated Image"
-                        src={imageUrl}
-                        priority
+                        path={`output/${imageUrl.split("/output/")[1]}`}
+                        fallbackSrc={blurDataURL}
                       />
                       <button
                         className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md"

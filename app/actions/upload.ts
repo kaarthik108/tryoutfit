@@ -124,3 +124,55 @@ export async function getGeneration(id: string) {
 
   return response.data?.output!;
 }
+
+export async function uploadOutputToS3(outputUrl: string, id: string) {
+  const uploadEndpoint = `${process.env.NEXT_PUBLIC_PRODUCTION_URL}/api/upload`;
+
+  const response = await fetch(uploadEndpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      filename: `${id}.jpg`,
+      contentType: "image/jpeg",
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to get presigned URL");
+  }
+
+  const { url, fields } = await response.json();
+  const fetchResponse = await fetch(outputUrl);
+  if (!fetchResponse.ok) {
+    throw new Error(`Failed to fetch output from ${outputUrl}`);
+  }
+
+  const outputBlob = await fetchResponse.blob();
+
+  const formData = new FormData();
+  Object.entries(fields).forEach(([key, value]) => {
+    formData.append(key, value as string);
+  });
+  formData.append("file", outputBlob, `${id}.jpg`);
+
+  const uploadResponse = await fetch(url, {
+    method: "POST",
+    body: formData as any,
+  });
+
+  if (!uploadResponse.ok) {
+    const errorText = await uploadResponse.text();
+    console.error("Failed to upload to S3:", errorText);
+    throw new Error("Failed to upload to S3");
+  }
+
+  const key = fields.key || fields.Key;
+  if (!key) {
+    throw new Error("Missing key in presigned URL fields");
+  }
+
+  console.log("Final S3 Key:", key);
+  return `${url}${key}`;
+}

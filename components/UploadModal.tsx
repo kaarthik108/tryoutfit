@@ -26,7 +26,7 @@ const predefinedImages = [
   "img/predefined-model-1.png",
 ];
 
-const blurDataURL = `data:image/svg+xml;base64,${btoa(`
+export const blurDataURL = `data:image/svg+xml;base64,${btoa(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
     <filter id="blur">
       <feGaussianBlur stdDeviation="5" />
