@@ -2,6 +2,10 @@
 
 TryOutfit is an AI-powered web application that allows users to virtually try on outfits using the IDM-VTON model from Replicate. It provides an interactive and user-friendly experience for visualizing how different outfits would look on the user or on predefined models.
 
+
+https://github.com/kaarthik108/tryoutfit/assets/53030784/633022c2-6819-487b-9677-f8d8133298d9
+
+
 ## Features
 
 - Upload your own image or choose from predefined models
