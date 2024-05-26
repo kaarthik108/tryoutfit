@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# TryOutfit
+
+TryOutfit is an AI-powered web application that allows users to virtually try on outfits using the IDM-VTON model from Replicate. It provides an interactive and user-friendly experience for visualizing how different outfits would look on the user or on predefined models.
+
+## Features
+
+- Upload your own image or choose from predefined models
+- Virtually try on outfits using AI technology
+- Shareable links to generated model outfits (valid for 1 hour)
+- Automatic deletion of model generations after 1 hour
+
+## Tech Stack
+
+- Next.js 14 (with server actions)
+- AWS S3 (image storage)
+- AWS DynamoDB (product data and inference data persistence)
+- AWS Cognito (API key authentication)
+- Replicate (AI model integration)
+- AWS Amplify (hosting)
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+
+```bash
+git clone https://github.com/kaarthik108/tryoutfit.git
+```
+
+2. Install dependencies:
+
+```bash
+cd tryoutfit
+npm install
+```
+
+3 .Set up the required environment variables for AWS services and Replicate API key. Add tunnel to test replicate webhook `cloudflared tunnel --url http://localhost:3000` and set the TUNNEL_URL environment variable to the url provided by cloudflared
+. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+The application is deployed using AWS Amplify. To deploy your own instance, follow the deployment guidelines provided by AWS Amplify Gen2.
 
-## Learn More
+## Contributing
 
-To learn more about Next.js, take a look at the following resources:
+Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+This project is licensed under the MIT License.
