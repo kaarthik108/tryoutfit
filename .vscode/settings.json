@@ -13,7 +13,6 @@
       "statusBarItem.hoverBackground": "#22d2cc",
       "statusBarItem.remoteBackground": "#46e1dc",
       "statusBarItem.remoteForeground": "#15202b",
-      "tab.activeBorder": "#72e8e4",
       "titleBar.activeBackground": "#46e1dc",
       "titleBar.activeForeground": "#15202b",
       "titleBar.inactiveBackground": "#46e1dc99",
